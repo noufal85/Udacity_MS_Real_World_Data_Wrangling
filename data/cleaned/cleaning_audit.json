@@ -1,0 +1,23 @@
+{
+  "gdp_source_rows": 7445,
+  "life_source_rows": 6384,
+  "missing_measurements": 24,
+  "missing_codes_initial": 120,
+  "missing_codes_removed_after_measurements": 96,
+  "join": {
+    "both": 4705,
+    "right_only": 1559,
+    "left_only": 328
+  },
+  "aggregate_rows_removed": 0,
+  "final_rows": 4705,
+  "final_variables": [
+    "country_code",
+    "country",
+    "year",
+    "gdp_per_capita_ppp",
+    "life_expectancy_years"
+  ],
+  "gdp_unit": "PPP international dollars at 2021 prices",
+  "life_unit": "years"
+}

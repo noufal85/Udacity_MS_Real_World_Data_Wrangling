@@ -1,0 +1,20 @@
+{
+  "gdp_per_capita_owid.csv": {
+    "url": "https://ourworldindata.org/grapher/gdp-per-capita-worldbank.csv?v=1&csvType=full&useColumnShortNames=false",
+    "retrieved_utc": "2026-10-28T08:17:02.074233+00:00",
+    "sha256": "18018aea4360d625b274c8a773ebd7a54b7e22e1d79e19587d5af4f0eedac111",
+    "bytes": 276698
+  },
+  "gdp_metadata.json": {
+    "url": "https://ourworldindata.org/grapher/gdp-per-capita-worldbank.metadata.json",
+    "retrieved_utc": "2026-10-28T08:17:02.796406+00:00",
+    "sha256": "0daf17d9665b5efc23df20a334a091a5fee9d27cb89721ada8ac2b9f3aea7c25",
+    "bytes": 3400
+  },
+  "life_expectancy_worldbank.json": {
+    "url": "https://api.worldbank.org/v2/country/all/indicator/SP.DYN.LE00.IN?format=json&date=2000%3A2023&per_page=20000",
+    "retrieved_utc": "2026-10-28T08:17:05.118199+00:00",
+    "sha256": "9fd82ce8e915667c3735f36bd8b478ad9eee2cd3fcd2a5ab28eaab27cff9d35e",
+    "bytes": 1457616
+  }
+}
