@@ -27,7 +27,7 @@ python -m pytest -q
 git diff --check
 ```
 
-Eight tests pass. The separate reusable Udacity notebook-evidence checker also passes: 26/26 executed code cells and 24 with visible results. A clean checkout must pass both before publication; the final remote commit and visibility are verified separately in the handoff, rather than embedding a self-referential commit hash here.
+Eight tests pass. The separate reusable Udacity notebook-evidence checker also passes: 26/26 executed code cells and 24 with visible results. A local clone of the committed project passed all eight tests before and after a fresh-kernel cached execution, using the validated project interpreter. The final remote commit and visibility are verified separately in the handoff, rather than embedding a self-referential commit hash here.
 
 ## Limits
 

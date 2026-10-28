@@ -32,6 +32,6 @@ The course document describes ZIP submission. The user requested a public GitHub
 | R9 | Preserve raw and cleaned versions with informative names | Section 4 and data directories | Raw hashes unchanged; final CSV round-trip passes | Verified |
 | R10 | Answer the research question with at least two interpreted plots | Section 5 | Both figures visually inspected and embedded in saved notebook; two sentences per interpretation | Verified |
 | R11 | Reflection/next steps in 2–4 sentences | Section 5.2 | Three sentences, limitations and next steps included | Verified |
-| R12 | Public `Udacity_MS_Real_World_Data_Wrangling` repository | GitHub | Repository created; exact-commit and clean-checkout verification required before handoff | Publication verification pending |
+| R12 | Public `Udacity_MS_Real_World_Data_Wrangling` repository | GitHub | Public visibility and origin verified; clean-clone tests and runtime pass; exact pushed revision verified in final handoff | Verified at publication gate |
 
 Sequence: validate source metadata and genuine issues; write focused cleaning tests; implement transparent reusable transformations; populate all starter sections; gather and preserve real data; execute the notebook; inspect outputs and plots; run rubric and evidence checks from a clean checkout; publish the reviewed revision. No fabricated data defects or mock analysis results will be used.
