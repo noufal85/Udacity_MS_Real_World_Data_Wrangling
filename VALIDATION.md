@@ -31,7 +31,7 @@ python -m pytest -q
 git diff --check
 ```
 
-Eighteen tests pass. The separate reusable Udacity notebook-evidence checker also passes: 26/26 executed code cells and 24 with visible results. The revised notebook is executed from a new kernel using preserved, hash-verified source snapshots; clean-checkout and extracted-package checks are performed at the final handoff. The final remote commit and visibility are verified separately, rather than embedding a self-referential commit hash here.
+Eighteen tests pass. The separate reusable Udacity notebook-evidence checker also passes: 26/26 executed code cells and 24 with visible results. The revised notebook is executed from a new kernel using preserved, hash-verified source snapshots. The local ZIP contains exactly the 26 tracked files, each matching its committed blob, with safe paths and a valid source-revision comment. An extracted copy passed all 18 tests before and after fresh-kernel cached notebook execution, using the validated project interpreter; no source download or clean dependency installation is claimed for that run. The final remote commit and visibility are verified separately, rather than embedding a self-referential commit hash here.
 
 ## Limits
 
