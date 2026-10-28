@@ -10,12 +10,12 @@
 | Our World in Data GDP-per-capita CSV | Primary dataset 1; programmatic file download | Public endpoint preflight: 7,445 rows and five fields |
 | World Bank life-expectancy indicator API | Primary dataset 2; JSON API query for 2000–2023 | Public endpoint preflight: 6,384 records; genuine missing measures and missing join identifiers |
 | Official pandas documentation | Library interfaces | Context7: `json_normalize`, `merge(validate='one_to_one')`, merge indicators |
-| `https://github.com/jesuscasal23/data-wrangling-project` | Advisory comparison only | README inspected: confirmed raw/clean storage, executed notebook and explicit units/limitations are useful evaluator navigation; no code or prose copied |
+| `https://github.com/jesuscasal23/data-wrangling-project` | Advisory comparison only | README and revision history reviewed for raw/clean storage, executed outputs, assessment ordering and reflection coverage |
 | `https://github.com/jaycode/udacity-real-world-data-wrangling-with-python` | Advisory comparison only | Repository root inspected: notebook/config/data structure; checkpoint and cache directories are not included in this deliverable |
 
 The folder name says trading, but the provided assignment and starter are Real-world Data Wrangling. This project follows that supplied assignment; it does not implement trading or place orders. The two main datasets share country codes and years. The proposed research question concerns the association between GDP per capita and life expectancy, not causation or investment advice.
 
-The course document describes ZIP submission. The user requested a public GitHub repository and the Udacity project skill uses GitHub as the canonical handoff, so no submission archive will be created. Raw datasets, cleaned datasets, gathering code, figures and the executed notebook will be included in the repository.
+The course document requires a ZIP upload. The public GitHub repository provides the user-requested source publication but does not replace that requirement. The user separately authorized a local compressed submission; the ZIP contains the reviewed repository files, including the executed notebook, required helper code, raw/clean datasets and setup instructions. Archive generation and validation are distinct from uploading it to Udacity; no course upload or grade is claimed.
 
 ## Rubric matrix and plan
 
@@ -33,5 +33,10 @@ The course document describes ZIP submission. The user requested a public GitHub
 | R10 | Answer the research question with at least two interpreted plots | Section 5 | Both figures visually inspected and embedded in saved notebook; two sentences per interpretation | Verified |
 | R11 | Reflection/next steps in 2–4 sentences | Section 5.2 | Three sentences, limitations and next steps included | Verified |
 | R12 | Public `Udacity_MS_Real_World_Data_Wrangling` repository | GitHub | Public visibility and origin verified; clean-clone tests and runtime pass; exact pushed revision verified in final handoff | Verified at publication gate |
+| R13 | Code comments clarify assessment and cleaning intent | Notebook code cells and authoring helper | Nine parametrized comment checks; comments explain intent rather than narrating each line | Verified |
+| R14 | Compressed package includes runnable notebook and datasets | Local ZIP outside repository; `SUBMISSION.md` | Archive integrity, safe paths, exact committed contents and extracted-copy execution checked before handoff | Verified at packaging gate |
+| R15 | Student uploads the compressed package for Udacity review | Udacity course submission interface | No upload confirmation inspected; repository publication and ZIP creation are not an upload | Pending external course upload |
+
+Independent review of the baseline is recorded in `FEEDBACK_RESOLUTION.md`. Completeness issues are defined relative to the analytical schema; affected records are aggregates, and absent ISO-country codes may be intentional source semantics. The wording is clarified, but evaluator interpretation of that choice remains a stated limitation rather than a guaranteed passing grade.
 
 Sequence: validate source metadata and genuine issues; write focused cleaning tests; implement transparent reusable transformations; populate all starter sections; gather and preserve real data; execute the notebook; inspect outputs and plots; run rubric and evidence checks from a clean checkout; publish the reviewed revision. No fabricated data defects or mock analysis results will be used.

@@ -33,7 +33,8 @@ FIGURES = ROOT / 'figures'
 for folder in (RAW, CLEAN, FIGURES):
     folder.mkdir(parents=True, exist_ok=True)
 print('pandas:', pd.__version__, '| Working directory:', ROOT.name)''',
-3: '''def acquire(url, filename):
+3: '''# Reuse verified source bytes so reruns keep the same data vintage.
+def acquire(url, filename):
     destination = RAW / filename
     manifest_path = RAW / 'provenance.json'
     manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
@@ -89,22 +90,25 @@ display(pd.DataFrame(provenance).T[['retrieved_utc', 'bytes', 'sha256']])''',
 15: "## 2. Assess data\n\nEach issue below has a displayed example and a programmatic assessment. Counts are calculated from the actual source snapshot, not inserted manually.",
 16: "### Quality issue 1: missing life-expectancy measurements (completeness)",
 17: "display(life_raw.loc[life_raw['value'].isna(), ['country', 'date', 'value']].head(8))",
-18: '''missing_values = int(life_raw['value'].isna().sum())
+18: '''# Count all null outcomes; a preview alone cannot establish their extent.
+missing_values = int(life_raw['value'].isna().sum())
 print('Missing essential measurements:', missing_values)
 assert missing_values > 0''',
-19: "A null outcome cannot locate an observation on the longevity axis and must not be interpreted as zero. All 24 missing values belong to the 'Not classified' aggregate in this snapshot; displaying affected records establishes that context, while the count establishes the extent.",
-20: "### Quality issue 2: missing country join identifiers (completeness)",
+19: "The analytical schema requires a numeric life-expectancy measurement, and a null outcome cannot be interpreted as zero. All 24 missing values belong to the 'Not classified' aggregate in this snapshot, not to measured individual countries; displaying affected records establishes that context, while the count establishes the extent. This is a completeness limitation for the intended analysis, not a claim that the provider's aggregate representation is corrupt.",
+20: "### Quality issue 2: missing entity join identifiers (completeness)",
 21: '''missing_code_mask = life_raw['countryiso3code'].fillna('').str.strip().eq('')
 display(life_raw.loc[missing_code_mask, ['country', 'countryiso3code', 'date', 'value']].head(8))''',
-22: '''missing_codes = int(missing_code_mask.sum())
+22: '''# Show overlap so sequential exclusions do not count the same row twice.
+missing_codes = int(missing_code_mask.sum())
 print('Missing country codes:', missing_codes)
 print('Overlap with missing measurements:', int((missing_code_mask & life_raw['value'].isna()).sum()))
 display(life_raw.loc[missing_code_mask, 'country'].map(lambda x: x['value']).value_counts())
 assert missing_codes > 0''',
-23: "Blank identifiers prevent a defensible code-year join even where a measurement exists. Here the affected entities are four income-group aggregates and 'Not classified', not individual countries with missing outcomes; a whitespace-aware mask and the entity counts establish this distinction. I do not invent join codes from display names.",
+23: "The analytical schema requires a nonempty entity code to join on code and year; blank identifiers violate that requirement even where a measurement exists. Here the affected entities are four income-group aggregates and 'Not classified', for which absent ISO-country codes may be intentional API semantics, not erroneous country records. A whitespace-aware mask and entity counts distinguish those records, which are excluded rather than assigned guessed country codes. These two quality issues are completeness problems relative to this analysis; an evaluator may prefer issues affecting individual-country measurements, so this scope limitation is explicit.",
 24: "### Tidiness issue 1: multiple variables inside JSON object cells",
 25: "display(life_raw[['country', 'indicator', 'date']].head(3))",
-26: '''nested_columns = [column for column in life_raw if life_raw[column].map(lambda x: isinstance(x, (dict, list))).any()]
+26: '''# Detect nested values by type rather than assuming the preview is representative.
+nested_columns = [column for column in life_raw if life_raw[column].map(lambda x: isinstance(x, (dict, list))).any()]
 print('Columns containing nested objects:', nested_columns)
 print('Country fields:', sorted(life_raw.iloc[0]['country']))
 print('Indicator fields:', sorted(life_raw.iloc[0]['indicator']))
@@ -112,7 +116,8 @@ assert {'country', 'indicator'}.issubset(nested_columns)''',
 27: "A country cell contains both an identifier and a label, so separate variables are not yet separate columns in the analysis table. Inspecting a displayed cell reveals the structure, and type/field checks confirm this is systematic rather than a display artifact; normalization will expose atomic fields.",
 28: "### Tidiness issue 2: a country-year observation split across sources",
 29: "display(gdp_raw[['Entity', 'Code', 'Year', 'GDP per capita']].head(3))\ndisplay(life_raw[['countryiso3code', 'date', 'value']].tail(3))",
-30: '''gdp_keys = set(zip(gdp_raw['Code'], gdp_raw['Year']))
+30: '''# Match identifiers and years, not display names that may vary between sources.
+gdp_keys = set(zip(gdp_raw['Code'], gdp_raw['Year']))
 life_keys = set(zip(life_raw['countryiso3code'], life_raw['date'].astype(int)))
 print('Shared country-year keys:', len(gdp_keys & life_keys))
 print('GDP duplicates:', int(gdp_raw.duplicated(['Code', 'Year']).sum()))
@@ -122,25 +127,27 @@ assert len(gdp_keys & life_keys) > 500''',
 32: "## 3. Clean data\n\nThe raw sources stay immutable. Each transformation below has a separate validation; row exclusions are disclosed instead of silently imputed.",
 33: "gdp_work = gdp_raw.copy(deep=True)\nlife_work = life_raw.copy(deep=True)\nprint('Raw and working frames created separately.')",
 34: "### Quality issue 1: remove missing essential measurements",
-35: "measured = remove_missing_values(life_work)\nexcluded_values = life_work.loc[life_work['value'].isna()].copy()",
+35: "# Do not impute essential outcomes for an aggregate with no reported measurement.\nmeasured = remove_missing_values(life_work)\nexcluded_values = life_work.loc[life_work['value'].isna()].copy()",
 36: "assert measured['value'].notna().all()\nassert len(measured) == len(life_work) - missing_values\nprint('Rows before:', len(life_work), '| after:', len(measured), '| removed:', missing_values)",
-37: "I use complete cases for the essential outcome rather than inventing life-expectancy values. This can introduce selection bias if missingness is systematic, so excluded records are saved and the conclusion applies only to observed pairs.",
+37: "I use complete cases for the essential outcome rather than inventing life-expectancy values. In this snapshot the 24 exclusions are all 'Not classified' aggregates, so this step removes no individual-country measurement; excluded records are saved to make that check auditable. Complete-case analysis could still introduce selection bias if future missingness affects countries systematically.",
 38: "### Quality issue 2: remove records without join identifiers",
-39: "identified = remove_missing_codes(measured)\nexcluded_codes = measured.loc[measured['countryiso3code'].fillna('').str.strip().eq('')].copy()",
+39: "# Remove remaining unjoinable aggregates after null outcomes to avoid double-counting.\nidentified = remove_missing_codes(measured)\nexcluded_codes = measured.loc[measured['countryiso3code'].fillna('').str.strip().eq('')].copy()",
 40: "assert identified['countryiso3code'].fillna('').str.strip().ne('').all()\nassert len(identified) + len(excluded_codes) == len(measured)\nprint('Remaining missing-code rows removed:', len(excluded_codes), '| retained:', len(identified))",
-41: "Rows without country codes are excluded because matching by names could create false links. The second exclusion is computed after removing missing outcomes, so overlapping defects are not double-counted.",
+41: "The remaining blank-code rows are income-group aggregates outside the country/economy unit of analysis, and assigning them country codes would create misleading links. The exclusion is computed after removing missing outcomes, so overlapping incomplete fields are not double-counted; no individual-country observation is removed by these two steps in this snapshot.",
 42: "### Tidiness issue 1: normalize nested objects into atomic fields",
-43: "life_tidy = flatten_life(identified.to_dict('records'))\ndisplay(life_tidy.head())",
+43: "# Expose atomic country fields before selecting the variables used in the analysis.\nlife_tidy = flatten_life(identified.to_dict('records'))\ndisplay(life_tidy.head())",
 44: "assert not life_tidy.map(lambda x: isinstance(x, (dict, list))).any().any()\nassert life_tidy.year.dtype.kind in 'iu'\nassert life_tidy.life_expectancy_years.between(0, 120).all()\nassert not life_tidy.duplicated(['country_code', 'year']).any()\nprint('Atomic fields and typed years validated:', life_tidy.shape)",
 45: "`json_normalize` separates nested fields before selecting country code, label, year and outcome. Indicator labels and response-status metadata are removed as irrelevant variables, not counted as additional data-quality fixes.",
 46: "### Tidiness issue 2: join the country-year observational unit",
-47: '''combined, join_audit = merge_sources(gdp_work, life_tidy)
+47: '''# Validate one-to-one keys and audit unmatched rows before retaining paired observations.
+combined, join_audit = merge_sources(gdp_work, life_tidy)
 print('Outer-join audit (before geographic scope selection):', join_audit)
 display(combined.head())''',
 48: "assert len(combined) == join_audit['both']\nassert not combined.duplicated(['country_code', 'year']).any()\nassert combined[['gdp_per_capita_ppp', 'life_expectancy_years']].notna().all().all()\nprint('Validated one-to-one matched observations:', len(combined))",
 49: "An outer join reports unmatched keys; only paired observations enter the analysis. `validate='one_to_one'` rejects duplicate keys instead of silently multiplying rows, and the year window is aligned to the API request.",
-50: "### Final scope and variable selection\n\nOWID uses special codes for its aggregates, whereas the World Bank uses different aggregate codes, so these do not match in this snapshot. I check for residual non-three-letter codes after the join; zero removals is a valid audit result, not an additional claimed cleaning issue. This regex is only a source-specific guard, not a universal ISO-country validator; the result covers countries and separately reported economies, with five useful variables and one country-year per row.",
-51: '''aggregate_mask = ~combined.country_code.str.fullmatch(r'[A-Z]{3}', na=False)
+50: "### Final scope and variable selection\n\nOWID uses special codes for its aggregates, whereas the World Bank uses different aggregate codes, so these do not match in this snapshot. I check for residual non-three-letter codes after the join; zero removals is a valid audit result, not an additional claimed cleaning issue. This regex is only a source-specific guard, not a universal ISO-country validator; the result covers countries and separately reported economies, with five useful variables and one country-year per row.\n\n| Variable | Type | Meaning and units |\n|---|---|---|\n| `country_code` | string | Source entity identifier; first part of the unique key |\n| `country` | string | Country/economy label from the GDP source |\n| `year` | integer | Calendar year, 2000–2023; second part of the unique key |\n| `gdp_per_capita_ppp` | float | PPP international dollars per person at 2021 prices |\n| `life_expectancy_years` | float | Life expectancy at birth, years |\n\nThe pair `(country_code, year)` uniquely identifies an observation; `country` is a display label, not a join key.",
+51: '''# This snapshot-specific guard is not a general country-registry lookup.
+aggregate_mask = ~combined.country_code.str.fullmatch(r'[A-Z]{3}', na=False)
 display(combined.loc[aggregate_mask, ['country_code', 'country']].drop_duplicates())
 aggregate_rows = int(aggregate_mask.sum())
 final = combined.loc[~aggregate_mask].copy().reset_index(drop=True)

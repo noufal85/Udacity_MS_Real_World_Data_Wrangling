@@ -15,6 +15,18 @@ How is income associated with longevity across countries, and how did longevity 
 
 These are descriptive associations, not causal estimates. GDP is PPP-adjusted international dollars at **2021 prices**; life expectancy is in years. Coverage is unbalanced and includes separately reported economies rather than only sovereign states.
 
+### Final data dictionary
+
+| Column | Type | Meaning and units |
+|---|---|---|
+| `country_code` | string | Source entity identifier; part of the unique key |
+| `country` | string | Country/economy display label from the GDP source |
+| `year` | integer | Calendar year, 2000–2023; part of the unique key |
+| `gdp_per_capita_ppp` | float | PPP international dollars per person at 2021 prices |
+| `life_expectancy_years` | float | Life expectancy at birth, years |
+
+The unique observation key is `(country_code, year)`; country labels are not join keys.
+
 ![Income and longevity](figures/income_longevity_scatter.png)
 
 ![Selected-country longevity](figures/selected_country_longevity.png)
@@ -50,9 +62,13 @@ Refresh changes the data vintage. Recheck all findings and update the snapshot-s
 | Raw and cleaned storage | `data/raw/`, `data/cleaned/`, provenance and cleaning audit JSON |
 | At least four final variables | `country_year_income_longevity.csv` has code, country, year, GDP and life expectancy |
 | Two interpreted plots | Section 5, embedded PNG outputs and `figures/` |
-| Executed deliverable | All 26 code cells executed, no error outputs; eight tests include saved-plot assertions |
+| Executed deliverable | All 26 code cells executed, no error outputs; 18 tests include saved plots, required comments and raw-to-final reconstruction |
 
-Missing measures occur in the `Not classified` aggregate; blank codes occur in income aggregates. These are real source defects for this join, not fabricated country-level missingness. After removing 24 null measurements, another 96 records lack identifiers. The outer join reports 4,705 matched, 328 GDP-only and 1,559 life-only keys within the selected year window; unmatched keys are not imputed. The remaining three-letter-code guard removes zero matched rows in this snapshot, and is not claimed as a fifth cleaning issue.
+Missing measures occur in the `Not classified` aggregate; blank codes occur in income aggregates. These are completeness limitations relative to this analytical schema, not evidence that the provider's aggregate representation is corrupt: aggregates may intentionally lack ISO-country codes. No individual-country records are removed by these two steps in this snapshot. After removing 24 null measurements, another 96 records lack identifiers. The outer join reports 4,705 matched, 328 GDP-only and 1,559 life-only keys within the selected year window; unmatched keys are not imputed. The remaining three-letter-code guard removes zero matched rows in this snapshot, and is not claimed as a fifth cleaning issue. An evaluator may prefer quality issues affecting individual-country measurements; that interpretation risk is disclosed rather than presented as resolved by test results.
+
+## Course submission
+
+The supplied course instructions require a **compressed ZIP containing the completed notebook and datasets**. Public GitHub publication is the requested source deliverable, not a replacement for that upload. `SUBMISSION.md` describes the locally prepared package, its validation, and the remaining course-upload step; no Udacity upload or passing grade is claimed.
 
 ## Sources and attribution
 
